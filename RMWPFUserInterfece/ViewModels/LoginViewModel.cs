@@ -1,32 +1,39 @@
 ﻿using Caliburn.Micro;
+using RMWPFUserInterfece.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+
 
 namespace RMWPFUserInterfece.ViewModels
 {
-   public class LoginViewModel: Screen
+    public class LoginViewModel : Screen
     {
         private string _userName;
-
+        private string _password;
+        private IAPIHelper _apiHelper;
+        public LoginViewModel(IAPIHelper apiHelper)
+        {
+            _apiHelper = apiHelper;
+        }
         public string UserName
         {
             get { return _userName; }
-            set { 
+            set
+            {
                 _userName = value;
                 NotifyOfPropertyChange(() => UserName);
                 NotifyOfPropertyChange(() => CanLogIn);
 
             }
         }
-        private string _password;
 
         public string Password
         {
             get { return _password; }
-            set { 
+            set
+            {
                 _password = value;
                 NotifyOfPropertyChange(() => Password);
                 NotifyOfPropertyChange(() => CanLogIn);
@@ -47,11 +54,19 @@ namespace RMWPFUserInterfece.ViewModels
             }
         }
 
-        public void LogIn(string userName, string passord)
+        public async Task LogIn()
         {
-            Console.WriteLine();
+            try
+            {
+                var result = await _apiHelper.Authenticate(UserName, Password);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+
         }
-
-
     }
 }
