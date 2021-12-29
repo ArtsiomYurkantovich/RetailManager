@@ -1,10 +1,11 @@
-﻿using RMWPFUserInterfece.Models;
+﻿using RMDesktopUI.Library.Models;
 using System.Threading.Tasks;
 
-namespace RMWPFUserInterfece.Helpers
+namespace RMDesktopUI.Library.Api
 {
     public interface IAPIHelper
     {
         Task<AuthenticatedUser> Authenticate(string userName, string password);
+        Task GetLoggedInUserModel(string token);
     }
 }

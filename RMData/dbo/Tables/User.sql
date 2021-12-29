@@ -4,5 +4,5 @@
     [Firstname] NCHAR(50) NOT NULL, 
     [LastName] NCHAR(50) NOT NULL, 
     [EmailAdress] NCHAR(256) NOT NULL, 
-    [CreateDate] DATETIMEOFFSET NOT NULL DEFAULT getutcdate()
+    [CreateDate] DATETIME2 NOT NULL DEFAULT getutcdate()
 )

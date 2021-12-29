@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
+using RMDesktopUI.Library.Api;
 
 namespace RMWPFUserInterfece.ViewModels
 {
@@ -88,6 +88,7 @@ namespace RMWPFUserInterfece.ViewModels
                 ErrorMessage = "";
                 var result = await _apiHelper.Authenticate(UserName, Password);
 
+                await _apiHelper.GetLoggedInUserModel(result.access_token);
             }
             catch (Exception ex)
             {
