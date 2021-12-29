@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using RMDesktopUI.Library.Api;
+using RMWPFUserInterfece.EventModels;
 
 namespace RMWPFUserInterfece.ViewModels
 {
@@ -13,9 +14,11 @@ namespace RMWPFUserInterfece.ViewModels
         private string _userName;
         private string _password;
         private IAPIHelper _apiHelper;
-        public LoginViewModel(IAPIHelper apiHelper)
+        private IEventAggregator _events;
+        public LoginViewModel(IAPIHelper apiHelper, IEventAggregator events)
         {
             _apiHelper = apiHelper;
+            _events = events;
         }
         public string UserName
         {
@@ -89,6 +92,8 @@ namespace RMWPFUserInterfece.ViewModels
                 var result = await _apiHelper.Authenticate(UserName, Password);
 
                 await _apiHelper.GetLoggedInUserModel(result.access_token);
+
+                _events.PublishOnUIThread(new LogOnEvent());
             }
             catch (Exception ex)
             {
