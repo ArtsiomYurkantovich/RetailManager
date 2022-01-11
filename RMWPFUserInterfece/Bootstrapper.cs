@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using RMDesktopUI.Library.Api;
+using RMDesktopUI.Library.Helpers;
 using RMDesktopUI.Library.Models;
 using RMWPFUserInterfece.Helpers;
 using RMWPFUserInterfece.ViewModels;
@@ -13,7 +14,7 @@ using System.Windows.Controls;
 
 namespace RMWPFUserInterfece
 {
-    public class Bootstrapper: BootstrapperBase
+    public class Bootstrapper : BootstrapperBase
     {
         private SimpleContainer _container = new SimpleContainer();
 
@@ -30,13 +31,14 @@ namespace RMWPFUserInterfece
         protected override void Configure()
         {
             _container.Instance(_container)
-                .PerRequest<IProductEndPoint,ProductEndPoint>();
+                .PerRequest<IProductEndPoint, ProductEndPoint>();
 
             _container
                 .Singleton<IWindowManager, WindowManager>()
                 .Singleton<IEventAggregator, EventAggregator>()
-                .Singleton<IAPIHelper, APIHelper>()
-                .Singleton<ILoggedInUserModel, LoggedInUserModel>();
+                .Singleton<ILoggedInUserModel, LoggedInUserModel>()
+                .Singleton<IConfigHelper, ConfigHelper>()
+                .Singleton<IAPIHelper, APIHelper>();
 
             GetType().Assembly.GetTypes()
                 .Where(type => type.IsClass)
