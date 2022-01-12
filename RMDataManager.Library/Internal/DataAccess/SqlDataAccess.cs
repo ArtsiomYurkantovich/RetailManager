@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace RMDataManager.Library.Internal.DataAccess
 {
-    internal class SqlDataAccess
+    public class SqlDataAccess
     {
-        public string GetConnectionString(string name)
+        internal string GetConnectionString(string name)
         {
             return ConfigurationManager.ConnectionStrings[name].ConnectionString;
         }

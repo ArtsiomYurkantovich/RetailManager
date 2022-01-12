@@ -14,10 +14,12 @@ namespace RMWPFUserInterfece.ViewModels
     {
         IProductEndPoint _productEndPoint;
         IConfigHelper _configHelper;
-        public SalesViewModel(IProductEndPoint productEndPoint, IConfigHelper configHelper)
+        ISaleEndPoint _saleEndPoint;
+        public SalesViewModel(IProductEndPoint productEndPoint, IConfigHelper configHelper, ISaleEndPoint saleEndPoint)
         {
             _productEndPoint = productEndPoint;
             _configHelper = configHelper;
+            _saleEndPoint = saleEndPoint;
         }
 
         protected override async void OnViewLoaded(object view)
@@ -96,28 +98,7 @@ namespace RMWPFUserInterfece.ViewModels
             }
         }
 
-        public bool CanRemoveFromCart
-        {
-            get
-            {
-                bool output = false;
-
-                //Make sure something is selected
-
-                return output;
-            }
-        }
-        public bool CanCheckOut
-        {
-            get
-            {
-                bool output = false;
-
-                //Make sure there is something in the cart
-
-                return output;
-            }
-        }
+      
         public string SubTotal
         {
             get
@@ -197,6 +178,8 @@ namespace RMWPFUserInterfece.ViewModels
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckOut);
+
         }
 
         public void RemoveFromCart()
@@ -204,12 +187,49 @@ namespace RMWPFUserInterfece.ViewModels
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckOut);
+
 
         }
-
-        public void CheckOut()
+        public bool CanRemoveFromCart
         {
+            get
+            {
+                bool output = false;
 
+                //Make sure something is selected
+
+                return output;
+            }
+        }
+        public bool CanCheckOut
+        {
+            get
+            {
+                bool output = false;
+
+                if(Cart.Count > 0)
+                {
+                    output = true;
+                }
+
+                return output;
+            }
+        }
+        public async Task CheckOut()
+        {
+            SaleModel sale = new SaleModel();
+            
+            foreach(var item in Cart)
+            {
+                sale.SaleDetails.Add(new SaleDetailModel
+                {
+                    ProductId = item.Product.Id,
+                    Quantity = item.QuantityInCart
+                }); 
+            }
+
+            await _saleEndPoint.PostSale(sale);
         }
 
     }
