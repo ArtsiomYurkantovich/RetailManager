@@ -1,8 +1,10 @@
-﻿using Caliburn.Micro;
+﻿using AutoMapper;
+using Caliburn.Micro;
 using RMDesktopUI.Library.Api;
 using RMDesktopUI.Library.Helpers;
 using RMDesktopUI.Library.Models;
 using RMWPFUserInterfece.Helpers;
+using RMWPFUserInterfece.Models;
 using RMWPFUserInterfece.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -28,8 +30,22 @@ namespace RMWPFUserInterfece
            "PasswordChanged");
         }
 
+        private IMapper ConfigureAutomapper()
+        {
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<ProductModel, ProductDisplayModel>();
+                cfg.CreateMap<CartItemModel, CartItemDisplayModel>();
+            });
+
+            var output = config.CreateMapper();
+            return output;
+        }
+
         protected override void Configure()
         {
+            _container.Instance(ConfigureAutomapper());
+
             _container.Instance(_container)
                 .PerRequest<IProductEndPoint, ProductEndPoint>()
                 .PerRequest<ISaleEndPoint, SaleEndPoint>();
@@ -48,6 +64,7 @@ namespace RMWPFUserInterfece
                 .ForEach(viewModelType => _container.RegisterPerRequest(
                     viewModelType, viewModelType.ToString(), viewModelType));
         }
+
         //register SimpleContainer in Caliburn.Micro
         protected override void OnStartup(object sender, StartupEventArgs e)
         {

@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using RMDesktopUI.Library.Api;
 using RMDesktopUI.Library.Models;
 using RMDesktopUI.Library.Helpers;
+using AutoMapper;
+using RMWPFUserInterfece.Models;
+using System.Collections.Generic;
 
 namespace RMWPFUserInterfece.ViewModels
 {
@@ -15,11 +18,14 @@ namespace RMWPFUserInterfece.ViewModels
         IProductEndPoint _productEndPoint;
         IConfigHelper _configHelper;
         ISaleEndPoint _saleEndPoint;
-        public SalesViewModel(IProductEndPoint productEndPoint, IConfigHelper configHelper, ISaleEndPoint saleEndPoint)
+        IMapper _mapper;
+       
+        public SalesViewModel(IProductEndPoint productEndPoint, IConfigHelper configHelper, ISaleEndPoint saleEndPoint, IMapper mapper)
         {
             _productEndPoint = productEndPoint;
             _configHelper = configHelper;
             _saleEndPoint = saleEndPoint;
+            _mapper = mapper;
         }
 
         protected override async void OnViewLoaded(object view)
@@ -27,14 +33,17 @@ namespace RMWPFUserInterfece.ViewModels
             base.OnViewLoaded(view);
             await LoadProducts();
         }
+       
         private async Task LoadProducts()
         {
             var productList = await _productEndPoint.GetAll();
-            Products = new BindingList<ProductModel>(productList);
+            var products = _mapper.Map<List<ProductDisplayModel>>(productList);
+            Products = new BindingList<ProductDisplayModel>(products);
         }
-        private BindingList<ProductModel> _products;
+       
+        private BindingList<ProductDisplayModel> _products;
 
-        public BindingList<ProductModel> Products
+        public BindingList<ProductDisplayModel> Products
         {
             get { return _products; }
             set
@@ -43,8 +52,9 @@ namespace RMWPFUserInterfece.ViewModels
                 NotifyOfPropertyChange(() => Products);
             }
         }
-        public ProductModel _selectedProduct { get; set; }
-        public ProductModel SelectedProduct
+
+        public ProductDisplayModel _selectedProduct { get; set; }
+        public ProductDisplayModel SelectedProduct
         {
             get { return _selectedProduct; }
             set
@@ -55,6 +65,20 @@ namespace RMWPFUserInterfece.ViewModels
 
             }
         }
+
+        public CartItemDisplayModel _selectedCartItem { get; set; }
+        public CartItemDisplayModel SelectedCartItem
+        {
+            get { return _selectedCartItem; }
+            set
+            {
+                _selectedCartItem = value;
+                NotifyOfPropertyChange(() => SelectedCartItem);
+                NotifyOfPropertyChange(() => CanRemoveFromCart);
+
+            }
+        }
+
         private int _itemQuantity = 1;
 
         public int ItemQuantity
@@ -70,9 +94,9 @@ namespace RMWPFUserInterfece.ViewModels
             }
         }
 
-        private BindingList<CartItemModel> _cart = new BindingList<CartItemModel>();
+        private BindingList<CartItemDisplayModel> _cart = new BindingList<CartItemDisplayModel>();
 
-        public BindingList<CartItemModel> Cart
+        public BindingList<CartItemDisplayModel> Cart
         {
             get { return _cart; }
             set
@@ -98,7 +122,6 @@ namespace RMWPFUserInterfece.ViewModels
             }
         }
 
-      
         public string SubTotal
         {
             get
@@ -154,18 +177,17 @@ namespace RMWPFUserInterfece.ViewModels
 
             }
         }
+
         public void AddToCart()
         {
-            CartItemModel existingItem = Cart.FirstOrDefault(x => x.Product == SelectedProduct);
+            CartItemDisplayModel existingItem = Cart.FirstOrDefault(x => x.Product == SelectedProduct);
             if (existingItem != null)
             {
                 existingItem.QuantityInCart += ItemQuantity;
-                Cart.Remove(existingItem);
-                Cart.Add(existingItem);
             }
             else
             {
-                CartItemModel item = new CartItemModel
+                CartItemDisplayModel item = new CartItemDisplayModel
                 {
                     Product = SelectedProduct,
                     QuantityInCart = ItemQuantity
@@ -182,8 +204,34 @@ namespace RMWPFUserInterfece.ViewModels
 
         }
 
+        public bool CanRemoveFromCart
+        {
+            get
+            {
+                bool output = false;
+
+                if (SelectedCartItem != null && SelectedCartItem?.Product.QuantityInStock > 0)
+                {
+                    output = true;
+                }
+
+                return output;
+            }
+        }
+
         public void RemoveFromCart()
         {
+            SelectedCartItem.Product.QuantityInStock += 1;
+
+            if (SelectedCartItem.QuantityInCart > 1)
+            {
+                SelectedCartItem.QuantityInCart -= 1;
+            }
+            else
+            {
+                Cart.Remove(SelectedCartItem);
+            }
+
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
@@ -191,24 +239,13 @@ namespace RMWPFUserInterfece.ViewModels
 
 
         }
-        public bool CanRemoveFromCart
-        {
-            get
-            {
-                bool output = false;
-
-                //Make sure something is selected
-
-                return output;
-            }
-        }
         public bool CanCheckOut
         {
             get
             {
                 bool output = false;
 
-                if(Cart.Count > 0)
+                if (Cart.Count > 0)
                 {
                     output = true;
                 }
@@ -219,14 +256,14 @@ namespace RMWPFUserInterfece.ViewModels
         public async Task CheckOut()
         {
             SaleModel sale = new SaleModel();
-            
-            foreach(var item in Cart)
+
+            foreach (var item in Cart)
             {
                 sale.SaleDetails.Add(new SaleDetailModel
                 {
                     ProductId = item.Product.Id,
                     Quantity = item.QuantityInCart
-                }); 
+                });
             }
 
             await _saleEndPoint.PostSale(sale);
