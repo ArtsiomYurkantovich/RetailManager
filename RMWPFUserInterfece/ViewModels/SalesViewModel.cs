@@ -41,6 +41,16 @@ namespace RMWPFUserInterfece.ViewModels
             Products = new BindingList<ProductDisplayModel>(products);
         }
        
+        public async Task ResetSalesViewModel()
+        {
+            Cart = new BindingList<CartItemDisplayModel>();
+            await LoadProducts();
+            NotifyOfPropertyChange(() => SubTotal);
+            NotifyOfPropertyChange(() => Tax);
+            NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckOut);
+        }
+
         private BindingList<ProductDisplayModel> _products;
 
         public BindingList<ProductDisplayModel> Products
@@ -210,7 +220,7 @@ namespace RMWPFUserInterfece.ViewModels
             {
                 bool output = false;
 
-                if (SelectedCartItem != null && SelectedCartItem?.Product.QuantityInStock > 0)
+                if (SelectedCartItem != null && SelectedCartItem?.QuantityInCart > 0)
                 {
                     output = true;
                 }
@@ -236,6 +246,8 @@ namespace RMWPFUserInterfece.ViewModels
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
             NotifyOfPropertyChange(() => CanCheckOut);
+            NotifyOfPropertyChange(() => CanAddToCart);
+
 
 
         }
@@ -267,6 +279,7 @@ namespace RMWPFUserInterfece.ViewModels
             }
 
             await _saleEndPoint.PostSale(sale);
+            await ResetSalesViewModel();
         }
 
     }

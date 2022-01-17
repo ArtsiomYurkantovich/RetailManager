@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using RMDesktopUI.Library.Models;
 using RMWPFUserInterfece.EventModels;
 using System;
 using System.Collections.Generic;
@@ -12,19 +13,48 @@ namespace RMWPFUserInterfece.ViewModels
     {
         private IEventAggregator _events;
         private SalesViewModel _salesVM;
-       
-        public ShellViewModel(IEventAggregator events, SalesViewModel salesVM)
+        private ILoggedInUserModel _user;
+
+        public ShellViewModel(IEventAggregator events, SalesViewModel salesVM, ILoggedInUserModel user)
         {
             _events = events;
             _salesVM = salesVM;
+            _user = user;
 
             _events.Subscribe(this);
             ActivateItem(IoC.Get<LoginViewModel>());
         }
 
+        public void ExitApplication()
+        {
+            TryClose();
+        }
+
+        public void LogOut()
+        {
+            _user.LogOffUser();
+            ActivateItem(IoC.Get<LoginViewModel>());
+            NotifyOfPropertyChange(() => IsLoggedIn);
+
+        }
+
+        public bool IsLoggedIn
+        {
+            get
+            {
+                bool output = false;
+                if (string.IsNullOrEmpty(_user.Token) == false)
+                {
+                    output = true;
+                }
+                return output;
+            }
+        }
+
         public void Handle(LogOnEvent message)
         {
             ActivateItem(_salesVM);
+            NotifyOfPropertyChange(() => IsLoggedIn);
             
         }
     }
