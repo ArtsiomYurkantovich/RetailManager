@@ -10,6 +10,8 @@ using RMDesktopUI.Library.Helpers;
 using AutoMapper;
 using RMWPFUserInterfece.Models;
 using System.Collections.Generic;
+using System.Dynamic;
+using System.Windows;
 
 namespace RMWPFUserInterfece.ViewModels
 {
@@ -19,28 +21,55 @@ namespace RMWPFUserInterfece.ViewModels
         IConfigHelper _configHelper;
         ISaleEndPoint _saleEndPoint;
         IMapper _mapper;
-       
-        public SalesViewModel(IProductEndPoint productEndPoint, IConfigHelper configHelper, ISaleEndPoint saleEndPoint, IMapper mapper)
+        private readonly StatusInfoViewModel _status;
+        private readonly IWindowManager _manager;
+
+        public SalesViewModel(IProductEndPoint productEndPoint, IConfigHelper configHelper, ISaleEndPoint saleEndPoint, IMapper mapper, StatusInfoViewModel status, IWindowManager manager)
         {
             _productEndPoint = productEndPoint;
             _configHelper = configHelper;
             _saleEndPoint = saleEndPoint;
             _mapper = mapper;
+            _status = status;
+            _manager = manager;
         }
 
         protected override async void OnViewLoaded(object view)
         {
             base.OnViewLoaded(view);
-            await LoadProducts();
+            try
+            {
+                await LoadProducts();
+
+            }
+            catch (Exception ex)
+            {
+                dynamic settings = new ExpandoObject();
+                settings.WindowsStartupLocation = WindowStartupLocation.CenterOwner;
+                settings.ResizeMode = ResizeMode.NoResize;
+                settings.Title = "System Eror";
+                if (ex.Message == "Unauthorized")
+                {
+                    _status.UpdateMessage("Unauthorized Access", "You do not have permission to interact with the Sales Form.");
+                    _manager.ShowDialog(_status, null, null);
+                }
+                else
+                {
+                    _status.UpdateMessage("Fatal Exeption", ex.Message);
+                    _manager.ShowDialog(_status, null, null);
+                }
+                TryClose();
+
+            }
         }
-       
+
         private async Task LoadProducts()
         {
             var productList = await _productEndPoint.GetAll();
             var products = _mapper.Map<List<ProductDisplayModel>>(productList);
             Products = new BindingList<ProductDisplayModel>(products);
         }
-       
+
         public async Task ResetSalesViewModel()
         {
             Cart = new BindingList<CartItemDisplayModel>();
