@@ -11,7 +11,7 @@ namespace DataManager.Controllers
 {
     public class ProductController : ApiController
     {
-        //[Authorize]
+        [Authorize(Roles = "Casheir")]
         public List<ProductModel> Get()
         {
 
