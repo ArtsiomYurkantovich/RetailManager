@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using DataManager.Models;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using RMDataManager.Library.DataAccess;
 using RMDataManager.Library.Internal.Models;
 using System;
@@ -18,6 +20,39 @@ namespace DataManager.Controllers
             string userId = RequestContext.Principal.Identity.GetUserId();
             UserData data = new UserData();
             return data.GetUserById(userId).First();
+        }
+
+        [Authorize(Roles ="Admin")]
+        [HttpGet]
+        [Route("api/User/Admin/GetAllUsers")]
+        public List<ApplicationUserModel> GetAllUsers()
+        {
+            List<ApplicationUserModel> output = new List<ApplicationUserModel>();
+            using (var context = new ApplicationDbContext())
+            {
+                var userStore = new UserStore<ApplicationUser>(context);
+                var userManager = new UserManager<ApplicationUser>(userStore);
+
+                var users = userManager.Users.ToList();
+                var roles = context.Roles.ToList();
+                
+                foreach(var user in users)
+                {
+                    ApplicationUserModel model = new ApplicationUserModel
+                    {
+                        Id = user.Id,
+                        Email = user.Email
+                    };
+
+                    foreach(var userRole in user.Roles)
+                    {
+                        model.Roles.Add(userRole.RoleId, roles.Where(x => x.Id == userRole.RoleId).First().Name);
+                    }
+
+                    output.Add(model);
+                }
+            }
+            return output;
         }
     }
 }
