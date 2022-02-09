@@ -13,7 +13,7 @@ namespace RMApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Cashier")]
+    [Authorize(Roles = "Cashier, Admin")]
     public class ProductController : ControllerBase
     {
         private readonly IConfiguration _config;
@@ -22,6 +22,8 @@ namespace RMApi.Controllers
         {
             _config = config;
         }
+
+       
         public List<ProductModel> Get()
         {
 

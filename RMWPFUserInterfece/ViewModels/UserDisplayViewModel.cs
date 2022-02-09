@@ -36,12 +36,15 @@ namespace RMWPFUserInterfece.ViewModels
         public UserModel SelectedUser
         {
             get { return _selectedUser; }
-            set
+            set 
             {
                 _selectedUser = value;
                 SelectedUserName = value.Email;
+
+                
                 UserRoles = new BindingList<string>(value.Roles.Select(x => x.Value).ToList());
                 LoadRoles();
+
                 NotifyOfPropertyChange(() => SelectedUser);
             }
         }
@@ -88,7 +91,7 @@ namespace RMWPFUserInterfece.ViewModels
 
         public BindingList<string> UserRoles
         {
-            get { return _userRoles; }
+            get{ return _userRoles; }
             set
             {
                 _userRoles = value;

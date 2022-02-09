@@ -9,6 +9,6 @@ namespace RMApi.Models
     {
         public string Id { get; set; }
         public string Email { get; set; }
-        public Dictionary<string, string> Roles = new Dictionary<string, string>();
+        public Dictionary<string, string> Roles { get; set; } = new Dictionary<string, string>();
     }
 }

@@ -32,8 +32,9 @@ namespace RMApi.Controllers
             _userManager = userManager;
             _config = config;
         }
-      
+
         #region GetById
+        [HttpGet]
         public UserModel GetById()
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);     /*RequestContext.Principal.Identity.GetUserId(); -- .NetFraemwork*/
@@ -43,9 +44,10 @@ namespace RMApi.Controllers
         #endregion
 
         #region GetAllUsers
+
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        [Route("api/User/Admin/GetAllUsers")]
+        [Route("Admin/GetAllUsers")]
         public List<ApplicationUserModel> GetAllUsers()
         {
             List<ApplicationUserModel> output = new List<ApplicationUserModel>();
@@ -62,8 +64,7 @@ namespace RMApi.Controllers
                     Id = user.Id,
                     Email = user.Email
                 };
-
-                model.Roles = userRoles.Where(x => x.RoleId == model.Id).ToDictionary(key => key.RoleId, val => val.Name);
+                model.Roles = userRoles.Where(x => x.UserId == model.Id).ToDictionary(key => key.RoleId, val => val.Name);
                 output.Add(model);
             }
 
@@ -72,9 +73,10 @@ namespace RMApi.Controllers
         #endregion
 
         #region GetAllRoles
+
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        [Route("api/User/Admin/GetAllRoles")]
+        [Route("Admin/GetAllRoles")]
         public Dictionary<string, string> GetAllRoles()
         {
             var roles = _context.Roles.ToDictionary(x => x.Id, x => x.Name);
@@ -85,7 +87,7 @@ namespace RMApi.Controllers
         #region AddRole
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        [Route("api/User/Admin/AddRole")]
+        [Route("Admin/AddRole")]
         public async Task AddRole(UserRolePairModel pairing)
         {
             var user = await _userManager.FindByIdAsync(pairing.UserId);
@@ -96,11 +98,11 @@ namespace RMApi.Controllers
         #region RemoveRole
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        [Route("api/User/Admin/RemoveRole")]
+        [Route("Admin/RemoveRole")]
         public async Task RemoveRole(UserRolePairModel pairing)
         {
             var user = await _userManager.FindByIdAsync(pairing.UserId);
-            _userManager.RemoveFromRoleAsync(user, pairing.RoleName);
+            await _userManager.RemoveFromRoleAsync(user, pairing.RoleName);
         }
         #endregion
     }

@@ -174,7 +174,7 @@ namespace RMWPFUserInterfece.ViewModels
             decimal subTotal = 0;
             foreach (var item in Cart)
             {
-                subTotal += (item.Product.RetailPrice * item.QuantityInCart);
+                subTotal += item.Product.RetailPrice * item.QuantityInCart;
             }
             return subTotal;
         }
