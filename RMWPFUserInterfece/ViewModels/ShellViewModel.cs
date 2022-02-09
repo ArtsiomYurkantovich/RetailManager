@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RMWPFUserInterfece.ViewModels
@@ -24,25 +25,26 @@ namespace RMWPFUserInterfece.ViewModels
             _user = user;
             _apiHelper = apiHelper;
 
-            _events.Subscribe(this);
-            ActivateItem(IoC.Get<LoginViewModel>());
+            _events.SubscribeOnPublishedThread(this);
+            ActivateItemAsync(IoC.Get<LoginViewModel>(), new CancellationToken());
         }
 
         public void ExitApplication()
         {
-            TryClose();
+           TryCloseAsync();
         }
 
-        public void UserManagement()
+        public async Task UserManagementAsync()
         {
-            ActivateItem(IoC.Get<UserDisplayViewModel>());
+            await ActivateItemAsync(IoC.Get<UserDisplayViewModel>());
         }
-        public void LogOut()
+
+        public async Task LogOutAsync()
         {
             _user.ResetUserModel();
             _apiHelper.LogOffUser();
-            ActivateItem(IoC.Get<LoginViewModel>());
-            NotifyOfPropertyChange(() => IsLoggedIn);
+           await ActivateItemAsync(IoC.Get<LoginViewModel>(), new CancellationToken());
+           NotifyOfPropertyChange(() => IsLoggedIn);
 
         }
 
@@ -59,11 +61,10 @@ namespace RMWPFUserInterfece.ViewModels
             }
         }
 
-        public void Handle(LogOnEvent message)
+        public async Task HandleAsync(LogOnEvent message, CancellationToken cancellationToken)
         {
-            ActivateItem(_salesVM);
+           await ActivateItemAsync(_salesVM, cancellationToken);
             NotifyOfPropertyChange(() => IsLoggedIn);
-            
         }
     }
 }

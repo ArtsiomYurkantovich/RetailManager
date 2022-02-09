@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Caliburn.Micro;
 
 namespace RMWPFUserInterfece.ViewModels
@@ -20,7 +21,7 @@ namespace RMWPFUserInterfece.ViewModels
 
         public void Close()
         {
-            TryClose();
+            TryCloseAsync();
         }
     }
 }

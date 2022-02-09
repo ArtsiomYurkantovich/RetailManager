@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RMDesktopUI.Library.Api;
 using RMWPFUserInterfece.EventModels;
+using System.Threading;
 
 namespace RMWPFUserInterfece.ViewModels
 {
@@ -93,7 +94,7 @@ namespace RMWPFUserInterfece.ViewModels
 
                 await _apiHelper.GetLoggedInUserModel(result.access_token);
 
-                _events.PublishOnUIThread(new LogOnEvent());
+                await _events.PublishOnUIThreadAsync(new LogOnEvent(), new CancellationToken());
             }
             catch (Exception ex)
             {

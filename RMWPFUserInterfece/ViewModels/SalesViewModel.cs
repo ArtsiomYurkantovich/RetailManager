@@ -51,14 +51,14 @@ namespace RMWPFUserInterfece.ViewModels
                 if (ex.Message == "Unauthorized")
                 {
                     _status.UpdateMessage("Unauthorized Access", "You do not have permission to interact with the Sales Form.");
-                    _manager.ShowDialog(_status, null, null);
+                    await _manager.ShowDialogAsync(_status, null, null);
                 }
                 else
                 {
                     _status.UpdateMessage("Fatal Exeption", ex.Message);
-                    _manager.ShowDialog(_status, null, null);
+                    await _manager.ShowDialogAsync(_status, null, null);
                 }
-                TryClose();
+                await TryCloseAsync();
 
             }
         }
