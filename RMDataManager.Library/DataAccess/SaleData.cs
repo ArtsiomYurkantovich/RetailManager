@@ -12,8 +12,9 @@ namespace RMDataManager.Library.DataAccess
     public class SaleData
     {
         private readonly IConfiguration _config;
+        private readonly decimal _texRate = 8.75m;
 
-        public SaleData(IConfiguration config)
+       public SaleData(IConfiguration config)
         {
            _config = config;
         }
@@ -21,7 +22,7 @@ namespace RMDataManager.Library.DataAccess
         {
             List<SaleDetailDBModel> details = new List<SaleDetailDBModel>();
             ProductData products = new ProductData(_config);
-            var taxRate = ConfigHelper.GetTaxRate();
+            //var taxRate = /*ConfigHelper.GetTaxRate()*/;
 
             foreach (var item in saleInfo.SaleDetails)
             {
@@ -43,7 +44,7 @@ namespace RMDataManager.Library.DataAccess
 
                 if (productInfo.IsTaxable)
                 {
-                    detail.Tax = (detail.PurchasePrice * taxRate) / 100;
+                    detail.Tax = detail.PurchasePrice * _texRate / 100;
                 }
 
                 details.Add(detail);

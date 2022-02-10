@@ -306,9 +306,9 @@ namespace RMWPFUserInterfece.ViewModels
                     Quantity = item.QuantityInCart
                 });
             }
-
+  
             await _saleEndPoint.PostSale(sale);
-            await ResetSalesViewModel();
+          await ResetSalesViewModel();
         }
 
     }
