@@ -16,11 +16,13 @@ namespace RMDataManager.Library.DataAccess
 
         private readonly ISqlDataAccess _sql;
         private readonly IProductData _productData;
+        private readonly IConfiguration _configuration;
 
-        public SaleData(ISqlDataAccess sql, IProductData productData)
+        public SaleData(ISqlDataAccess sql, IProductData productData, IConfiguration configuration)
         {
             _sql = sql;
             _productData = productData;
+           _configuration = configuration;
         }
 
         public void SaveSale(SaleModel saleInfo, string cashierId)

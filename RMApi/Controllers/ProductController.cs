@@ -23,6 +23,7 @@ namespace RMApi.Controllers
             _productData = productData;
         }
 
+        [HttpGet]
         public List<ProductModel> Get()
         {
             return _productData.GetProducts();

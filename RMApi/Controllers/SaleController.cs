@@ -17,7 +17,6 @@ namespace RMApi.Controllers
     [Authorize]
     public class SaleController : ControllerBase
     {
-        private readonly IConfiguration _config;
         private readonly ISaleData _saleData;
 
         public SaleController(ISaleData saleData)
